@@ -1,0 +1,18 @@
+PHPUnit 3.6.12 by Sebastian Bergmann.
+
+EDOMDocument::load(http://www.bbc.co.uk/iplayer/ion/searchextended/search_availability/iplayer/service_type/radio/page/1/perpage/25/q/chris): failed to open stream: HTTP request failed! HTTP/1.1 406 Not Acceptable
+
+
+Time: 1 second, Memory: 1.50Mb
+
+There was 1 error:
+
+1) ProgrammeFinderServiceTest::testSearchBrand
+Exception: External service error
+
+D:\maesierra\eclipse-php\workspace\ProgrammeFinder\src\programmeFinder.php:56
+D:\maesierra\eclipse-php\workspace\ProgrammeFinder\test\programmeFinderTest.php:27
+D:\maesierra\eclipse-php\php\php\phpunit:46
+
+FAILURES!
+Tests: 1, Assertions: 0, Errors: 1.
