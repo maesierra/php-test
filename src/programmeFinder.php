@@ -1,4 +1,6 @@
 <?php
+require_once("Brand.php");
+
 /**
  * BBC iPlayer radio programme finder client
  * @author María-Eugenia Sierra
@@ -37,7 +39,7 @@ class ProgrammeFinderService {
 		}
 		//use the url loader if present
 		if (isset($this->urlLoader)) {
-			call_user_func_array($this->urlLoader,array($url));
+			return call_user_func_array($this->urlLoader,array($url));
 		}
 		$doc = new DOMDocument();
 		$doc->load($url);
@@ -46,13 +48,47 @@ class ProgrammeFinderService {
 	}
 	
 	/**
+	 * Returns the node value for a child with the name $property
+	 * @param DOMElement $node node 
+	 * @param String $property child's name
+	 * @param DOMXPath $xpath xpath instance for the node's document
+	 * @return String property value
+	 * @throws Exception if no value found
+	 */
+	private function getPropertyValue($property, $node, $xpath) {
+		$entries = $xpath->evaluate("ion:$property", $node);
+		if ($entries->length == 0) {
+			throw new Exception("External service parsing error");
+		}
+		return $entries->item(0)->nodeValue;
+			
+	}
+	
+	/**
+	 * Creates a new brand object using the node information
+	 * @return Brand
+	 */
+	private function createBrand($brandId, $node, $xpath) {
+		return new Brand($brandId, $this->getPropertyValue("brand_title", $node, $xpath));
+			
+	}
+	
+	/**
+	 * Creates a new Programme using the node information
+	 * @return Programme
+	 */
+	private function createProgramme($node, $xpath) {
+		return new Programme($this->getPropertyValue("complete_title", $node, $xpath), $this->getPropertyValue("duration", $node, $xpath));
+	}
+	
+	/**
 	 * Search the service for programmes matching the query
 	 * @param string $query search query
 	 * @param integer $page search page (1 by default)
-	 * @param integer $count reference to store the total count
+	 * @param boolean $more reference that will be set to true if there are more results
 	 * @return array matching results or a empty array, upto 
 	 */
-	public function searchBrand($query, $page=1, &$count) {
+	public function searchBrand($query, $page=1, &$more) {
 		$params = array(
 			"search_availability" => "iplayer",
 			"service_type" => "radio",
@@ -71,16 +107,21 @@ class ProgrammeFinderService {
 		$xpath->registerNamespace("ion", "http://bbc.co.uk/2008/iplayer/ion");
 		$nodelist = $xpath->query( "//ion:brand_id"); //Search for all the brand ids
 		$brands = array();
-		foreach ($nodelist as $n){
+		foreach ($nodelist as $n){			
 			$brandId = $n->nodeValue;
-			if (isset($brands[$brandId])) {
-				$brands[$brandId][] = count($brands[$brandId]) + 1;
-			} else {
-				$brands[$brandId] =  array(1);
+			//Check if the brandId is already in the array
+			if (!isset($brands[$brandId])) {
+				//Create the brand object
+				$brands[$brandId] =  $this->createBrand($brandId, $n->parentNode, $xpath);
 			}			
-    		
-		} 
-		print_r($brands);
+			//Create programme info and add it to the brand
+			$programme = $this->createProgramme($n->parentNode, $xpath);
+			$brands[$brandId]->addProgramme($programme);
+		}		
+		//count the total and check if we reached the end
+		$total = $xpath->query( "//ion:total_count")->item(0)->nodeValue; 
+		$more = ($total > self::$PAGE_SIZE * $page); 
+		return $brands; 
 			 
 	}
 	/**
