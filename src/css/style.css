@@ -1,12 +1,18 @@
-			.ui-widget {
-				font-size: 9pt;
-			}
-			.inputText {
-				padding: 4px;
-				border: solid 1px black;
-			}
-			
-			#results {
-				margin-top: 10px;
-				margin-bottom: 10px;
-			}
+.ui-widget {
+	font-size: 9pt;
+}
+
+.inputText {
+	padding: 4px;
+	border: solid 1px black;
+}
+
+#results {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+footer {
+	margin-top: 10px;
+	font-size: small;
+}

@@ -57,7 +57,7 @@ require_once("programmeFinder.php");
         			$("#loader").load("index.php?search=" + $("input[name='currentSearch']").val() +
         			                  "&page=" + (page + 1) + "&fragment=true",
         			                  function() {
-        			                  	$("#results").append($("#loader div#results").html());
+        			                  	$("#results").append($("#loader #results").html());
         			                  	$("#results").accordion("destroy");
         			                  	$("#results").accordion();
         			                  	$("input[name='moreBtn']").val("Show more");
@@ -71,35 +71,40 @@ require_once("programmeFinder.php");
 		</script>
 	</head>
 	<body>
-	<h1>Programme Finder</h1>
+	<header>
+		<h1>Programme Finder</h1>
+	</header>
+	<section id="searchData">
 	<form action="index.php">
 	<input class="inputText" name="search" value="<?php echo $search?>" />&nbsp;<input type="submit" name="searchBtn" value="Search" />
-	<input type="hidden" name="currentSearch" value="<?php echo $search;?>" disabled="disabled"/>
+	<input type="hidden" name="currentSearch" value="<?php echo $search;?>" disabled="disabled"/>	
 	</form>	
+	</section>
 <?php endif; ?>	
 	<?php if ($showResults): ?>
-		<div id="results">	
+		<section id="results">
 		<?php if (count($results) > 0):?>
 			<?php foreach ($results as $brand):?>
 		    	<h3><a href="#"><?php echo $brand->getName();?></a></h3>
-		    	<div>
-		    		<ol>
-		    		<?php foreach ($brand->getProgrammes() as $programme):?>
-		    			<li><?php echo $programme->getName();?> [<?php echo $programme->getDuration(true);?>]</li>
-		    		<?php endforeach ?>
-		    		</ol>
-		    	</div>
+		    	<article id="brand_<?php echo $brand->getId();?>">
+			    		<ol>
+			    		<?php foreach ($brand->getProgrammes() as $programme):?>
+			    			<li><?php echo $programme->getName();?> [<?php echo $programme->getDuration(true);?>]</li>
+			    		<?php endforeach ?>
+			    		</ol>
+		    	</article>
 		    <?php endforeach; ?>	
 		<?php else: ?>
 			No results found.
 		<?php endif;?>
-		</div>
+		</section>
 	<?php endif; ?>
 <?php if (!$fragment): ?>
 	<?php if ($more): ?>
 		<input type="button" name="moreBtn" value="Show More" />
 		<div id="loader" style="display:none"></div>
-	<?php endif; ?>	
+	<?php endif; ?>
+	<footer>Programme Finder by María-Eugenia Sierra (<a href="mailto:mariaeugenia.sierra@gmail.com">mariaeugenia.sierra@gmail.com)</a></footer>	
 	</body>
 </html>
 <?php endif;?>  
